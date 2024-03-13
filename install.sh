@@ -151,7 +151,7 @@ EOF
         echo -e "${green}Service Installed Successfully and activated.${rest}"
         echo -e "${yellow}_________________________________________${rest}"
         echo -e "${green}You can use the following methods${rest}"
-       printf "+----------------------+-------------+\n"
+        printf "+----------------------+-------------+\n"
 		printf "| %-20s | %-11s |\n" "server" "   password"
 		printf "| %-22s | %-13s |\n" "👇" "         👇"
 		printf "| %-20s | %-12s |\n" "wss://$domain:$port" "$passwd"
