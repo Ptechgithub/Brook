@@ -153,7 +153,7 @@ EOF
         echo -e "${green}You can use the following methods${rest}"
         printf "+----------------------+-------------+\n"
 		printf "| %-20s | %-11s |\n" "server" "   password"
-		printf "| %-22s | %-13s |\n" "👇" "         👇"
+		printf "| %-22s | %-13s |\n" "" "         "
 		printf "| %-20s | %-12s |\n" "wss://$domain:$port" "$passwd"
 		printf "+----------------------+-------------+\n"
 		echo -e "${yellow}brook link: ${cyan}brook://wssserver?password=$passwd&wssserver=wss%3A%2F%2F$domain%3A$port ${rest}"
