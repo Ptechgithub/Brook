@@ -88,7 +88,7 @@ install_nami() {
 		chmod +x /usr/local/bin/nami
 		nami
     else
-        echo -e "${cyan}________________${rest}"
+        echo -e "${cyan}______________________${rest}"
         echo -e "${green}nami already installed${rest}"
     fi
 }
@@ -109,14 +109,14 @@ install_acme(){
     mkdir /root/brook
     curl https://get.acme.sh | sh
     ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-    echo -e "${purple}*****************${rest}"
+    echo -e "${purple}**********************${rest}"
     echo -en "${green}Please enter your registration email (e.g., admin@gmail.com, or Press Enter to generate a  random Gmail): ${rest}"
     read -r email
 	if [[ -z $email ]]; then
 	    mail=$(date +%s%N | md5sum | cut -c 1-16)
 	    email=$mail@gmail.com
 	    echo -e "${green}Gmail set to: ${yellow}$email${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    sleep 1
 	fi
     ~/.acme.sh/acme.sh --register-account -m $email
@@ -168,31 +168,39 @@ EOF
 #Check status
 check() {
     if systemctl is-active --quiet brook.service; then
-        echo -e "${cyan} [Brook is Active]${rest}"
+        echo -e "${cyan}[Brook is Active]${rest}"
     else
-        echo -e "${yellow}[Brook Not Active]${rest}"
+        echo -e "${yellow} [Brook Not Active ]${rest}"
+    fi
+}
+
+check_custom() {
+    if systemctl is-active --quiet brook_custom.service; then
+        echo -e "${cyan} [Custom is Active ]${rest}"
+    else
+        echo -e "${yellow} [Custom Not Active]${rest}"
     fi
 }
 
 # Install Brook
 install() {
     if sudo systemctl is-active --quiet brook; then
-        echo -e "${cyan}________________${rest}"
+        echo -e "${cyan}______________________${rest}"
         echo -e "${green}Brook service is already Actived.${rest}"
-        echo -e "${cyan}________________${rest}"
+        echo -e "${cyan}______________________${rest}"
     else
 	    check_dependencies
 	    install_nami
 	    
-	    if ! command -v brook &> /dev/null; then
+	    if ! command -v /root/.nami/bin/brook &> /dev/null; then
 	        nami install brook
 	    else
 	        echo -e "${green}Brook already installed ${installed}"
-	        echo -e "${cyan}________________${rest}"
+	        echo -e "${cyan}______________________${rest}"
 	        echo ""
 	    fi
 	    
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -en "${green}Enter Your domain:${rest} "
 	    read -r domain
 	    if [[ -z $domain ]]; then
@@ -200,19 +208,19 @@ install() {
 	        exit 1
 	    fi
 	    echo -e "${cyan}Domain set to:${rest} ${yellow}$domain${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -en "${green}Enter Https Port [Default :443]:${rest} " 
 	    read -r port
 	    port="${port:-443}"
 	    echo -e "${cyan}Port set to:${rest} ${yellow}$port${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -en "${green}Enter a password (or press Enter for a random password):${rest} "
 	    read -r passwd
 	    if [ -z "$passwd" ]; then
 	        passwd=$(date +%s | sha256sum | base64 | head -c 6)
 	    fi
 	    echo -e "${cyan}Password set to:${rest} ${yellow}$passwd${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    sleep 1
 	    
 	    install_acme
@@ -220,27 +228,80 @@ install() {
     fi
 }
 
+# install custom
+install_custom() {
+    if sudo systemctl is-active --quiet brook_custom.service; then
+        echo -e "${cyan}______________________${rest}"
+        echo -e "${green}Brook service is already Actived.${rest}"
+        echo -e "${cyan}______________________${rest}"
+    else
+        check_dependencies
+        install_nami
+        
+        if ! command -v /root/.nami/bin/brook &> /dev/null; then
+            nami install brook
+        else
+            echo -e "${green}Brook already installed ${installed}"
+            echo -e "${cyan}______________________${rest}"
+            echo ""
+        fi
+        
+        echo -e "${purple}**********************${rest}"
+        echo -en "${green}Enter Brook arguments (${cyan}Example: ${yellow}brook server --listen :9999 --password hello${green} ): ${rest}"
+        read -r arguments
+        echo -e "${purple}**********************${rest}"
+        
+        cat <<EOL > /etc/systemd/system/brook_custom.service
+[Unit]
+Description=Brook Websocket Server
+After=network.target
+
+[Service]
+ExecStart=/root/.nami/bin/$arguments
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOL
+        
+        sudo systemctl daemon-reload
+        sudo systemctl start brook_custom.service
+        sudo systemctl enable brook_custom.service 2>/dev/null
+    
+    
+        if systemctl is-active --quiet brook_custom.service; then
+	        echo -e "${yellow}_________________________________________${rest}"
+	        echo -e "${green}Service Installed Successfully and activated.${rest}"
+	        echo -e "${yellow}_________________________________________${rest}"
+        else
+	        echo -e "${yellow}____________________________${rest}"
+	        echo -e "${red}Service is not active.${rest}"
+	        echo -e "${yellow}____________________________${rest}"
+        fi
+    fi
+}
+
 # Change Port
 change_port() {
     if sudo systemctl is-active --quiet brook; then
 	    old_port=$(awk -F ':| ' '/--domainaddress/ {print $5}' /etc/systemd/system/brook.service)
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -e "${cyan}Your Port is: ${old_port}${rest}"
 	    echo -en "${green}Enter Https Port [Default :443]:${rest} " 
 	    read -r new_port
 	    new_port="${new_port:-443}"
 	    
 	    echo -e "${cyan}Port changed to:${rest} ${yellow}$new_port${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    
 	    sed -i "s/:${old_port}/:${new_port}/" /etc/systemd/system/brook.service
 	    
 	    sudo systemctl daemon-reload
 	    sudo systemctl restart brook.service
 	else
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -e "${yellow}Service is not installed. please Install first${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	fi
 }
 
@@ -248,22 +309,22 @@ change_port() {
 change_password() {
     if sudo systemctl is-active --quiet brook; then
 	    password=$(grep -oP '(?<=--password\s)[^\s]+' /etc/systemd/system/brook.service)
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -e "${cyan}Your Password is: ${password}${rest}"
 	    echo -en "${green}Enter New Password:${rest} " 
 	    read -r new_password
 	    
 	    echo -e "${cyan}Password changed to:${rest} ${yellow}$new_password${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    
 	    sed -i "s/--password [^ ]*/--password $new_password/" /etc/systemd/system/brook.service
 	    
 	    sudo systemctl daemon-reload
 	    sudo systemctl restart brook.service
 	else
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	    echo -e "${yellow}Service is not installed. please Install first${rest}"
-	    echo -e "${purple}*****************${rest}"
+	    echo -e "${purple}**********************${rest}"
 	fi
 }
 
@@ -283,17 +344,36 @@ uninstall() {
 	        sed -i '/--cron/d' /etc/crontab >/dev/null 2>&1
 	        rm -rf ~/.acme.sh
 	        rm -rf brook
-	        echo -e "${purple}*****************${rest}"
+	        echo -e "${purple}**********************${rest}"
 	        echo -e "${green}Acme.sh has been uninstalled.${rest}"
 	    else
-	        echo -e "${purple}*****************${rest}"
+	        echo -e "${purple}**********************${rest}"
 	        echo -e "${yellow}Acme.sh is not installed.${rest}"
 	    fi
         echo -e "${green}Brook service has been uninstalled.${rest}"
     else
-        echo -e "${purple}*****************${rest}"
+        echo -e "${purple}**********************${rest}"
         echo -e "${yellow}Brook service is not installed.${rest}"
-        echo -e "${purple}*****************${rest}"
+        echo -e "${purple}**********************${rest}"
+    fi
+}
+
+# Uninstall Custom
+uninstall_custom() {
+    if sudo systemctl status brook_custom &>/dev/null || [ -f /etc/systemd/system/brook_custom.service ]; then
+        sudo systemctl stop brook_custom
+        sudo systemctl disable brook_custom 2>/dev/null
+        sudo rm -f /etc/systemd/system/brook_custom.service
+        sudo systemctl daemon-reload
+        nami remove brook 2>/dev/null
+        rm /usr/local/bin/nami 2>/dev/null
+        echo -e "${purple}**********************${rest}"
+        echo -e "${green}Brook service has been uninstalled.${rest}"
+        echo -e "${purple}**********************${rest}"
+    else
+        echo -e "${purple}**********************${rest}"
+        echo -e "${yellow}Brook service is not installed.${rest}"
+        echo -e "${purple}**********************${rest}"
     fi
 }
 
@@ -301,17 +381,24 @@ clear
 echo -e "${cyan}By --> Peyman * Github.com/Ptechgithub * ${rest}"
 echo ""
 check
-echo -e "${purple}********************${rest}"
-echo -e "${purple}*    ${green}BROOK VPN${purple}     *${rest}"
-echo -e "${purple}********************${rest}"
-echo -e "${yellow}1) ${green}Install${rest}         ${purple}*${rest}"
-echo -e "${purple}                   * ${rest}"
-echo -e "${yellow}2) ${green}Uninstall${rest}       ${purple}*${rest}"
-echo -e "${purple}                   * ${rest}"
-echo -e "${yellow}3) ${green}Change Port${rest}     ${purple}*${rest}"
-echo -e "${purple}                   * ${rest}"
-echo -e "${yellow}4) ${green}Change Password${purple} *${rest}"
-echo -e "${purple}********************${rest}"
+check_custom
+echo -e "${purple}**********************${rest}"
+echo -e "${purple}*    ${yellow}[${green}BROOK VPN${yellow}]${purple}     *${rest}"
+echo -e "${purple}**********************${rest}"
+echo -e "${yellow}[1] ${green}Install${rest}          ${purple}*${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[2] ${green}Uninstall${rest}        ${purple}*${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[3] ${green}Change Port${rest}     ${purple} *${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[4] ${green}Change Password${purple}  *${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[5] ${green}Install Custom${rest}  ${purple} *${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[6] ${green}Uninstall Custom${purple} *${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[${red}0${yellow}] ${green}Exit${purple}             *${rest}"
+echo -e "${purple}**********************${rest}"
 
 read -p "Enter your choice: " choice
 case "$choice" in
@@ -321,19 +408,25 @@ case "$choice" in
     2)
         uninstall
         ;;
-    3) 
+    3)
         change_port 
         ;;
     4)
         change_password 
+        ;;
+    5)
+        install_custom
+        ;;
+    6)
+        uninstall_custom
         ;;
     0)
         echo -e "${cyan}By 🖐${rest}"
         exit
         ;;
     *)
-        echo -e "${purple}*****************${rest}"
+        echo -e "${purple}**********************${rest}"
         echo "Invalid choice. Please select a valid option."
-        echo -e "${purple}*****************${rest}"
+        echo -e "${purple}**********************${rest}"
         ;;
 esac
