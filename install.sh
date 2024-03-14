@@ -132,7 +132,7 @@ Description=Brook Websocket Server
 After=network.target
 
 [Service]
-ExecStart=/root/.nami/bin/brook wssserver --domainaddress $domain:$port --password $passwd --cert /root/brook/cert.crt --certkey /root/brook/private.key --blockGeoIP="IR"
+ExecStart=/root/.nami/bin/brook wssserver --domainaddress $domain:$port --password $passwd --cert /root/brook/cert.crt --certkey /root/brook/private.key --blockGeoIP IR --path $path
 Restart=always
 
 [Install]
@@ -150,13 +150,14 @@ EOF
         echo -e "${yellow}_________________________________________${rest}"
         echo -e "${green}Service Installed Successfully and activated.${rest}"
         echo -e "${yellow}_________________________________________${rest}"
+        echo ""
         echo -e "${green}You can use the following methods${rest}"
         printf "+----------------------+-------------+\n"
 		printf "| %-20s | %-11s |\n" "server" "   password"
 		printf "| %-22s | %-13s |\n" "" "         "
-		printf "| %-20s | %-12s |\n" "wss://$domain:$port" "$passwd"
+		printf "| %-20s | %-12s |\n" "wss://$domain:$port$path" "$passwd"
 		printf "+----------------------+-------------+\n"
-		echo -e "${yellow}brook link: ${cyan}brook://wssserver?password=$passwd&wssserver=wss%3A%2F%2F$domain%3A$port ${rest}"
+		echo -e "${yellow}brook link: ${cyan}brook://wssserver?password=$passwd&wssserver=wss%3A%2F%2F$domain%3A$port$path ${rest}"
 		printf "+----------------------+-------------+\n"
     else
         echo -e "${yellow}____________________________${rest}"
@@ -168,7 +169,7 @@ EOF
 #Check status
 check() {
     if systemctl is-active --quiet brook.service; then
-        echo -e "${cyan}[Brook is Active]${rest}"
+        echo -e "${cyan} [ Brook is Active ]${rest}"
     else
         echo -e "${yellow} [Brook Not Active ]${rest}"
     fi
@@ -221,6 +222,11 @@ install() {
 	    fi
 	    echo -e "${cyan}Password set to:${rest} ${yellow}$passwd${rest}"
 	    echo -e "${purple}**********************${rest}"
+	    echo -en "${green}Enter Brook path (use: /) [Default :/wss]:${rest} "
+        read -r path
+        path="${path:-/wss}"
+        echo -e "${cyan}Path set to:${rest} ${yellow}$path${rest}"
+        echo -e "${purple}**********************${rest}"
 	    sleep 1
 	    
 	    install_acme
@@ -351,6 +357,7 @@ uninstall() {
 	        echo -e "${yellow}Acme.sh is not installed.${rest}"
 	    fi
         echo -e "${green}Brook service has been uninstalled.${rest}"
+        echo -e "${purple}**********************${rest}"
     else
         echo -e "${purple}**********************${rest}"
         echo -e "${yellow}Brook service is not installed.${rest}"
