@@ -204,7 +204,7 @@ install() {
 	    echo -en "${green}Enter Your domain:${rest} "
 	    read -r domain
 	    if [[ -z $domain ]]; then
-	        echo "Domain cannot be empty."
+	        echo -e "${yellow}Domain cannot be empty.${rest}"
 	        exit 1
 	    fi
 	    echo -e "${cyan}Domain set to:${rest} ${yellow}$domain${rest}"
