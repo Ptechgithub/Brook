@@ -154,7 +154,7 @@ EOF
         echo -e "${green}You can use the following methods${rest}"
         printf "+----------------------+-------------+\n"
 		printf "| %-20s | %-11s |\n" "server" "   password"
-		printf "| %-22s | %-13s |\n" "" "         "
+		printf "| %-22s | %-13s |\n" "👇" "         👇"
 		printf "| %-20s | %-12s |\n" "wss://$domain:$port$path" "$passwd"
 		printf "+----------------------+-------------+\n"
 		echo -e "${yellow}brook link: ${cyan}brook://wssserver?password=$passwd&wssserver=wss%3A%2F%2F$domain%3A$port$path ${rest}"
@@ -222,7 +222,7 @@ install() {
 	    fi
 	    echo -e "${cyan}Password set to:${rest} ${yellow}$passwd${rest}"
 	    echo -e "${purple}**********************${rest}"
-	    echo -en "${green}Enter Brook path (use: /) [Default :/wss]:${rest} "
+	    echo -en "${green}Enter Brook path (Use:${yellow} /${green}) [Default :/wss]:${rest} "
         read -r path
         path="${path:-/wss}"
         echo -e "${cyan}Path set to:${rest} ${yellow}$path${rest}"
@@ -337,10 +337,10 @@ change_password() {
 # Change Path
 change_path() {
     if sudo systemctl is-active --quiet brook; then
-	    old_path=$(awk -F '--path ' '{print $2}' /etc/systemd/system/brook.service)
+	    old_path=$(grep -oP '(?<=--path\s)[^\s]+' /etc/systemd/system/brook.service)
 	    echo -e "${purple}**********************${rest}"
 	    echo -e "${cyan}Your Path is: ${old_path}${rest}"
-	    echo -en "${green}Enter New Path:${rest} " 
+	    echo -en "${green}Enter New Path (Use: ${yellow}/${green}):${rest} " 
 	    read -r new_path
 	    
 	    echo -e "${cyan}Path changed to:${rest} ${yellow}$new_path${rest}"
@@ -421,9 +421,9 @@ echo -e "${yellow}[2] ${green}Uninstall${rest}        ${purple}*${rest}"
 echo -e "${purple}                     * ${rest}"
 echo -e "${yellow}[3] ${green}Change Port${rest}     ${purple} *${rest}"
 echo -e "${purple}                     * ${rest}"
-echo -e "${yellow}[4] ${green}Change Password${rest}     ${purple} *${rest}"
+echo -e "${yellow}[4] ${green}Change Password${rest} ${purple} *${rest}"
 echo -e "${purple}                     * ${rest}"
-echo -e "${yellow}[5] ${green}Change Path${purple}  *${rest}"
+echo -e "${yellow}[5] ${green}Change Path${purple}      *${rest}"
 echo -e "${purple}                     * ${rest}"
 echo -e "${yellow}[6] ${green}Install Custom${rest}  ${purple} *${rest}"
 echo -e "${purple}                     * ${rest}"
@@ -456,7 +456,7 @@ case "$choice" in
         uninstall_custom
         ;;
     0)
-        echo -e "${cyan}By ${rest}"
+        echo -e "${cyan}By 🖐${rest}"
         exit
         ;;
     *)
