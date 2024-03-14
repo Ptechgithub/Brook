@@ -4,7 +4,7 @@ A cross-platform programmable network tool.
 
 ## Install
 ```
-
+bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Brook/main/install.sh)
 ```
 [25](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/25.jpg)
 
