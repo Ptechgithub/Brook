@@ -334,6 +334,29 @@ change_password() {
 	fi
 }
 
+# Change Path
+change_path() {
+    if sudo systemctl is-active --quiet brook; then
+	    old_path=$(awk -F '--path ' '{print $2}' /etc/systemd/system/brook.service)
+	    echo -e "${purple}**********************${rest}"
+	    echo -e "${cyan}Your Path is: ${old_path}${rest}"
+	    echo -en "${green}Enter New Path:${rest} " 
+	    read -r new_path
+	    
+	    echo -e "${cyan}Path changed to:${rest} ${yellow}$new_path${rest}"
+	    echo -e "${purple}**********************${rest}"
+	    
+	    sed -i "s|--path $old_path|--path $new_path|" /etc/systemd/system/brook.service
+	    
+	    sudo systemctl daemon-reload
+	    sudo systemctl restart brook.service
+	else
+	    echo -e "${purple}**********************${rest}"
+	    echo -e "${yellow}Service is not installed. please Install first${rest}"
+	    echo -e "${purple}**********************${rest}"
+	fi
+}
+
 # Uninstall
 uninstall() {
     if sudo systemctl status brook &>/dev/null || [ -f /etc/systemd/system/brook.service ]; then
@@ -398,11 +421,13 @@ echo -e "${yellow}[2] ${green}Uninstall${rest}        ${purple}*${rest}"
 echo -e "${purple}                     * ${rest}"
 echo -e "${yellow}[3] ${green}Change Port${rest}     ${purple} *${rest}"
 echo -e "${purple}                     * ${rest}"
-echo -e "${yellow}[4] ${green}Change Password${purple}  *${rest}"
+echo -e "${yellow}[4] ${green}Change Password${rest}     ${purple} *${rest}"
 echo -e "${purple}                     * ${rest}"
-echo -e "${yellow}[5] ${green}Install Custom${rest}  ${purple} *${rest}"
+echo -e "${yellow}[5] ${green}Change Path${purple}  *${rest}"
 echo -e "${purple}                     * ${rest}"
-echo -e "${yellow}[6] ${green}Uninstall Custom${purple} *${rest}"
+echo -e "${yellow}[6] ${green}Install Custom${rest}  ${purple} *${rest}"
+echo -e "${purple}                     * ${rest}"
+echo -e "${yellow}[7] ${green}Uninstall Custom${purple} *${rest}"
 echo -e "${purple}                     * ${rest}"
 echo -e "${yellow}[${red}0${yellow}] ${green}Exit${purple}             *${rest}"
 echo -e "${purple}**********************${rest}"
@@ -422,9 +447,12 @@ case "$choice" in
         change_password 
         ;;
     5)
-        install_custom
+        change_path 
         ;;
     6)
+        install_custom
+        ;;
+    7)
         uninstall_custom
         ;;
     0)
