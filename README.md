@@ -20,6 +20,7 @@ A cross-platform programmable network tool.
 
 در روش Custom و روش 1 ، پس از ریستارت شدن مجدد سرویس فعال میشود و دسترسی شما قطع نخواهد شد.
 
+
 ## Install
 ```
 bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Brook/main/install.sh)
@@ -36,3 +37,5 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Brook/main/insta
 
 
 [Brook Project](https://github.com/txthinking/brook)
+
+جهت حمایت میتوانید بر روی دکمه ی 🌟 star  در بالای صفحه کلیک کنید.
