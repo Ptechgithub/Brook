@@ -421,7 +421,7 @@ case "$choice" in
         uninstall_custom
         ;;
     0)
-        echo -e "${cyan}By 🖐${rest}"
+        echo -e "${cyan}By ${rest}"
         exit
         ;;
     *)
