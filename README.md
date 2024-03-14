@@ -38,4 +38,4 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Brook/main/insta
 
 [Brook Project](https://github.com/txthinking/brook)
 
-جهت حمایت میتوانید بر روی دکمه ی 🌟 star  در بالای صفحه کلیک کنید.
+جهت حمایت میتوانید بر روی دکمه ی 🌟 Star  در بالای صفحه کلیک کنید.
