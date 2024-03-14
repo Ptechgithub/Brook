@@ -2,6 +2,13 @@ Brook
 
 A cross-platform programmable network tool.
 
+## Install
+```
+
+```
+[25](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/25.jpg)
+
+
 ## GUI Client
 
 | iOS | Android      | Mac    |Windows      |Linux        |OpenWrt      |
