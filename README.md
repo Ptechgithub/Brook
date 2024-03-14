@@ -14,3 +14,6 @@ A cross-platform programmable network tool.
 ```
 brook client -s 1.2.3.4:9999 -p hello --socks5 127.0.0.1:1080
 ```
+
+
+[Brook Project](https://github.com/txthinking/brook)
